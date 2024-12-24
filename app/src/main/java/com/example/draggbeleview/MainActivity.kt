@@ -1,6 +1,9 @@
 package com.example.draggbeleview
 
+import android.content.ClipData
+import android.content.ClipDescription
 import android.os.Bundle
+import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -23,6 +26,24 @@ class MainActivity : AppCompatActivity() {
         Glide.with(this).asBitmap()
             .load(getString(R.string.target_url))
             .into(binding.ivTarget)
+        setupDrag(binding.ivSource)
+    }
+
+    fun setupDrag(draggableView: View) {
+        draggableView.setOnLongClickListener { v ->
+            val label = "Dragged Image Url"
+            val clipItem = ClipData.Item(v.tag as? CharSequence)
+            val mimeTypes = arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN)
+            val draggedData = ClipData(
+                label, mimeTypes, clipItem
+            )
+            v.startDragAndDrop(
+                draggedData,
+                View.DragShadowBuilder(v),
+                null,
+                0
+            )
+        }
     }
 
 }
