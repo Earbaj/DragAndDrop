@@ -34,20 +34,24 @@ class MainActivity : AppCompatActivity() {
         setupDrop(binding.ivTarget)
     }
 
-    fun setupDrag(draggableView: View) {
+    private fun setupDrag(draggableView: View) {
         draggableView.setOnLongClickListener { v ->
-            val label = "Dragged Image Url"
+            // Set a tag for the draggable view
+            v.tag = getString(R.string.source_url)
+
+            val label = "Dragged Image URL"
             val clipItem = ClipData.Item(v.tag as? CharSequence)
             val mimeTypes = arrayOf(ClipDescription.MIMETYPE_TEXT_PLAIN)
-            val draggedData = ClipData(
-                label, mimeTypes, clipItem
-            )
+            val draggedData = ClipData(label, mimeTypes, clipItem)
+
+            // Start drag and drop
             v.startDragAndDrop(
                 draggedData,
                 View.DragShadowBuilder(v),
                 null,
                 0
             )
+            true // Return true to indicate the drag started
         }
     }
 
@@ -58,7 +62,7 @@ class MainActivity : AppCompatActivity() {
                     Log.d(TAG, "ON DRAG STARTED")
                     if (event.clipDescription.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
                         (v as? ImageView)?.apply {
-                            alpha = 0.5F
+                            alpha = 0.5F // Make the target semi-transparent
                             invalidate()
                         }
                         true
@@ -66,42 +70,49 @@ class MainActivity : AppCompatActivity() {
                         false
                     }
                 }
+
                 DragEvent.ACTION_DROP -> {
                     Log.d(TAG, "ON DROP")
                     val item: ClipData.Item = event.clipData.getItemAt(0)
-                    val dragData = item.text ?: "Default Text or URL"
+                    val dragData = item.text.toString() // Extract the dragged data (URL or path)
+
+                    // Load the new image into the target ImageView
                     if (v is ImageView) {
-                        Glide.with(v.context) // Ensure proper context for Glide.
-                            .load(dragData.toString()) // Load the dropped data as a URL or path.
+                        Glide.with(v.context)
+                            .load(dragData) // Use the dragged URL or path
                             .into(v)
-                        v.alpha = 1.0F
+                        v.alpha = 1.0F // Restore the full opacity
                     }
                     true
                 }
+
                 DragEvent.ACTION_DRAG_ENTERED -> {
                     Log.d(TAG, "ON DRAG ENTERED")
                     (v as? ImageView)?.apply {
-                        alpha = 0.3F
+                        alpha = 0.3F // Highlight the target with more transparency
                         invalidate()
                     }
                     true
                 }
+
                 DragEvent.ACTION_DRAG_EXITED -> {
                     Log.d(TAG, "ON DRAG EXITED")
                     (v as? ImageView)?.apply {
-                        alpha = 0.5F
+                        alpha = 0.5F // Restore semi-transparency
                         invalidate()
                     }
                     true
                 }
+
                 DragEvent.ACTION_DRAG_ENDED -> {
                     Log.d(TAG, "ON DRAG ENDED")
                     (v as? ImageView)?.apply {
-                        alpha = 1.0F
+                        alpha = 1.0F // Restore full opacity
                     }
                     true
                 }
-                else -> false // Return false for unhandled actions.
+
+                else -> false // Return false for unhandled actions
             }
         }
     }
