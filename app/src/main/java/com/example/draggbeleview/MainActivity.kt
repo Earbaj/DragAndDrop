@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
         val imageContainer: LinearLayout = findViewById(R.id.imageContainer)
-        val ivTarget: ImageView = findViewById(R.id.ivTarget)
+        val dropContainer: LinearLayout = findViewById(R.id.dropContainer)
 
         // Populate the horizontal list with ImageViews
         for (url in imageUrls) {
@@ -44,8 +44,11 @@ class MainActivity : AppCompatActivity() {
             setupDrag(imageView) // Make the ImageView draggable
         }
 
-        // Set up the drop target
-        setupDrop(ivTarget)
+        // Set up drop targets for all ImageViews in the drop container
+        for (i in 0 until dropContainer.childCount) {
+            val dropTarget = dropContainer.getChildAt(i)
+            setupDrop(dropTarget)
+        }
 
     }
 
